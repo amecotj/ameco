@@ -1,0 +1,24 @@
+//@version=5
+strategy("RSI + EMA Breakout", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=100, commission_type=strategy.commission.percent, commission_value=0.1)
+
+rsiLength = input.int(14, "RSI Length", minval=1)
+rsiOversold = input.float(30.0, "RSI Oversold", minval=1, maxval=50)
+emaLength = input.int(20, "EMA Length", minval=1)
+stopLossPct = input.float(2.0, "Stop Loss (%)", minval=0.1, step=0.1) / 100.0
+
+rsiValue = ta.rsi(close, rsiLength)
+ema20 = ta.ema(close, emaLength)
+
+// Price breaks above 20 EMA (close crosses over EMA)
+emaBreakout = ta.crossover(close, ema20)
+longCondition = rsiValue < rsiOversold and emaBreakout
+
+if longCondition
+    strategy.entry("Long", strategy.long)
+
+if strategy.position_size > 0
+    stopPrice = strategy.position_avg_price * (1 - stopLossPct)
+    strategy.exit("SL", from_entry="Long", stop=stopPrice)
+
+plot(ema20, "20 EMA", color=color.orange, linewidth=2)
+plotshape(longCondition, title="Buy", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small)
