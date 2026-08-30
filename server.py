@@ -11,7 +11,7 @@ def webhook():
     if request.method == 'POST':
         # 把 TradingView 发来的数据打印并存起来
         data = request.json or request.form.to_dict() or request.data.decode()
-        print("收到 TradingView 报警:", data, flush=Tru)
+        print("收到 TradingView 报警:", data, flush=True)
         last_message = f"成功收到！内容是: {data}"
         return "success", 200
     else:
